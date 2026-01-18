@@ -11,8 +11,6 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
-/Assets/Resources/PhotonVR/RizzPlayer.fbx
-/Assets/Resources/PhotonVR/RizzPlayer.fbx.meta
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
@@ -29,7 +27,6 @@
 
 # Visual Studio cache directory
 .vs/
-.vscode/
 
 # Gradle cache directory
 .gradle/
@@ -65,7 +62,6 @@ sysinfo.txt
 # Builds
 *.apk
 *.aab
-*.unitypackage
 *.app
 
 # Crashlytics generated file

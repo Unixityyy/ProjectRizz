@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Unity",
+            "type": "vstuc",
+            "request": "attach"
+        },
+        {
+            "name": "Attach to Unity Device",
+            "type": "vstuc",
+            "request": "attach",
+            "endPoint": "192.168.1.135:"
+        }
+    ]
+}
