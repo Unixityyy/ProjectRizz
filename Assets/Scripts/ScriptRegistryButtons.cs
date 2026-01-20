@@ -14,10 +14,10 @@ public class ScriptRegistryButtons : MonoBehaviour
             if (key == KeyType.Down) ui.MoveSelection(1);
             if (key == KeyType.Enter) ui.InstallSelected();
             
-            transform.localPosition -= new Vector3(0, 0.02f, 0);
+            transform.localPosition -= new Vector3(0, 0.01f, 0);
             Invoke(nameof(ResetButton), 0.1f);
         }
     }
 
-    void ResetButton() => transform.localPosition += new Vector3(0, 0.02f, 0);
+    void ResetButton() => transform.localPosition += new Vector3(0, 0.01f, 0);
 }
