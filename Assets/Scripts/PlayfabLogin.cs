@@ -14,8 +14,19 @@ using UnityEngine.Events;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
+public class BypassCertificate : CertificateHandler
+{
+    protected override bool ValidateCertificate(byte[] certificateData)
+    {
+        return true;
+    }
+}
+
 public class PlayfabLogin : MonoBehaviourPunCallbacks
 {
+    [Header("SETTINGS")]
+    public bool useAttestation = true;
+
     [Header("COSMETICS")]
     public static PlayfabLogin instance;
     public string MyPlayFabID;
@@ -46,13 +57,13 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
 
     private string playFabTicket;
     private bool hashed;
-    private string backendUrl = "https://happy-tiffi-unixityyy-45c13271.koyeb.app/secure-login"; 
+    private string backendUrl = "https://happy-tiffi-unixityyy-45c13271.koyeb.app/secure-login";
 
     public void ModCall(string Reason)
     {
-        string jsonPayload = "{\"content\": \"<@&1355942327583248494> Player has called for mod! Reason: " + Reason + ", Player ID is " + MyPlayFabID + ".\", \"allowed_mentions\": {\"roles\": [\"1355942327583248494\"]}}"; //
+        string jsonPayload = "{\"content\": \"<@&1355942327583248494> Player has called for mod! Reason: " + Reason + ", Player ID is " + MyPlayFabID + ".\", \"allowed_mentions\": {\"roles\": [\"1355942327583248494\"]}}";
 
-        UnityWebRequest www = new UnityWebRequest("https://discord.com/api/webhooks/1413736708775612416/OWgCe3UTPiphoKyLwb0miqhIbz0brl_jJ8_0Ks-Qr6MgjZaocMTJlL3LqkUk4rS_2bYm", "POST"); //
+        UnityWebRequest www = new UnityWebRequest("https://discord.com/api/webhooks/1413736708775612416/OWgCe3UTPiphoKyLwb0miqhIbz0brl_jJ8_0Ks-Qr6MgjZaocMTJlL3LqkUk4rS_2bYm", "POST");
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonPayload);
         www.uploadHandler = new UploadHandlerRaw(jsonToSend);
         www.downloadHandler = new DownloadHandlerBuffer();
@@ -107,18 +118,42 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
         else
         {
             MetaAuthSuceed = true;
-            
-            Oculus.Platform.Users.GetUserProof().OnComplete(tokenMsg => {
-                if (!tokenMsg.IsError)
-                {
-                    StartCoroutine(SecureLoginRoutine(tokenMsg.Data.Value));
-                }
-                else
-                {
-                    Debug.LogError("Failed to get User Proof: " + tokenMsg.GetError().Message);
-                }
-            });
+
+            if (useAttestation)
+            {
+                Oculus.Platform.Users.GetUserProof().OnComplete(tokenMsg => {
+                    if (!tokenMsg.IsError)
+                    {
+                        StartCoroutine(SecureLoginRoutine(tokenMsg.Data.Value));
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to get User Proof: " + tokenMsg.GetError().Message);
+                    }
+                });
+            }
+            else
+            {
+                LoginWithCustomID();
+            }
         }
+    }
+
+    void LoginWithCustomID()
+    {
+        var request = new LoginWithCustomIDRequest
+        {
+            CustomId = SystemInfo.deviceUniqueIdentifier,
+            CreateAccount = true
+        };
+        PlayFabClientAPI.LoginWithCustomID(request, OnCustomIDLoginSuccess, OnError);
+    }
+
+    private void OnCustomIDLoginSuccess(LoginResult result)
+    {
+        playFabTicket = result.SessionTicket;
+        MyPlayFabID = result.PlayFabId;
+        HandlePostLogin();
     }
 
     IEnumerator SecureLoginRoutine(string attestationToken)
@@ -141,13 +176,17 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
             www.uploadHandler = new UploadHandlerRaw(bodyRaw);
             www.downloadHandler = new DownloadHandlerBuffer();
             www.SetRequestHeader("Content-Type", "application/json");
+            www.certificateHandler = new BypassCertificate();
 
             yield return www.SendWebRequest();
 
             if (www.result == UnityWebRequest.Result.Success)
             {
                 var response = JsonUtility.FromJson<SecureLoginResponse>(www.downloadHandler.text);
-                OnBackendLoginSuccess(response);
+                playFabTicket = response.SessionTicket;
+                MyPlayFabID = response.PlayFabId;
+                PlayFabSettings.staticPlayer.ClientSessionTicket = playFabTicket;
+                HandlePostLogin();
             }
             else
             {
@@ -157,12 +196,8 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
         }
     }
 
-    private void OnBackendLoginSuccess(SecureLoginResponse response)
+    private void HandlePostLogin()
     {
-        playFabTicket = response.SessionTicket;
-        MyPlayFabID = response.PlayFabId;
-        PlayFabSettings.staticPlayer.ClientSessionTicket = playFabTicket;
-
         LoginEvent.Invoke();
         GetVirtualCurrencies();
         GetMOTD();
@@ -173,9 +208,9 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
             if (string.IsNullOrEmpty(username))
             {
                 string numbers = null;
-                for (int i = 0; i < 4; i++) numbers += Random.Range(0, 100);
+                for (int i = 0; i < 4; i++) numbers += Random.Range(0, 10).ToString();
                 string newUsername = "RIZZ" + numbers;
-                
+
                 PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest { DisplayName = newUsername }, null, null);
                 PhotonVRManager.SetUsername(newUsername);
             }

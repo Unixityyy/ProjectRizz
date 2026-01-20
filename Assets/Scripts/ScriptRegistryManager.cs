@@ -23,7 +23,7 @@ public class ScriptRegistry
 
 public class ScriptRegistryManager : MonoBehaviour
 {
-    private string rawRepoUrl = "https://raw.githubusercontent.com/Unixityyy/pjrz-script-registry/main/";
+    private string rawRepoUrl = "https://raw.githubusercontent.com/Unixityyy/pjrz-script-registry/refs/heads/main/";
     
     public void FetchRegistry(System.Action<ScriptRegistry> callback)
     {
@@ -32,6 +32,7 @@ public class ScriptRegistryManager : MonoBehaviour
 
     private IEnumerator GetRegistry(System.Action<ScriptRegistry> callback)
     {
+        Debug.Log("Fetching "+(rawRepoUrl+"registry.json"));
         using (UnityWebRequest www = UnityWebRequest.Get(rawRepoUrl + "registry.json"))
         {
             yield return www.SendWebRequest();
@@ -58,6 +59,7 @@ public class ScriptRegistryManager : MonoBehaviour
     {
         string url = rawRepoUrl + "scripts/" + filename;
         
+        Debug.Log($"Downloading {url} to main.js!");
         using (UnityWebRequest www = UnityWebRequest.Get(url))
         {
             yield return www.SendWebRequest();
