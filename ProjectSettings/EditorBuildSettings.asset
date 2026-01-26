@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Start.unity
-    guid: d1a32f18abbe79246bebe7eca90a6759
-  - enabled: 1
     path: Assets/Scenes/Monke/MonkeTag.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
@@ -17,6 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DangerousAssets.unity
     guid: cf217f79d4b3f3f4c956ea32dfc4340f
+  - enabled: 1
+    path: Assets/Scenes/Start.unity
+    guid: d1a32f18abbe79246bebe7eca90a6759
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 722c0f5580eb8084dbd2728321766466, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 3f68c7d05437bd4418ae83cf5752725a, type: 2}
