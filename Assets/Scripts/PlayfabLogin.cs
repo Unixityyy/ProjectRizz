@@ -25,7 +25,7 @@ public class BypassCertificate : CertificateHandler
 public class PlayfabLogin : MonoBehaviourPunCallbacks
 {
     [Header("SETTINGS")]
-    public bool useAttestation = true;
+    public bool useAttestation = false;
 
     [Header("COSMETICS")]
     public static PlayfabLogin instance;
@@ -57,6 +57,8 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
 
     private string playFabTicket;
     private bool hashed;
+    private bool UsernameGot;
+    private bool photonMetaSynced = false;
     private string backendUrl = "https://happy-tiffi-unixityyy-45c13271.koyeb.app/secure-login";
 
     public void ModCall(string Reason)
@@ -82,6 +84,7 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
     {
         DontDestroyOnLoad(gameObject);
         MetaAuthSuceed = false;
+        UsernameGot = false;
         instance = this;
     }
 
@@ -222,6 +225,20 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
         }, ConnectToPhoton, OnPlayFabError);
     }
 
+    public override void OnJoinedRoom()
+    {
+        // 99.99% is connected and ready but a little check never hurt nobody
+        if (PhotonNetwork.IsConnectedAndReady && UsernameGot)
+        {
+            ExitGames.Client.Photon.Hashtable customProps = new ExitGames.Client.Photon.Hashtable();
+            
+            customProps["MetaUsername"] = OculusUserName;
+            customProps["MetaDisplayName"] = OculusDisplayName;
+            
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProps);
+        }
+    }
+
     void UpdatePlayFabMetaInfo()
     {
         var request = new UpdateUserDataRequest
@@ -232,6 +249,8 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
             }
         };
         PlayFabClientAPI.UpdateUserData(request, null, null);
+
+        UsernameGot = true;
     }
 
     void ConnectToPhoton(GetPhotonAuthenticationTokenResult result)
@@ -281,6 +300,16 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
             hash["PlayfabID"] = MyPlayFabID;
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
             hashed = true;
+        }
+
+        if (PhotonNetwork.InRoom && UsernameGot && !photonMetaSynced)
+        {
+            ExitGames.Client.Photon.Hashtable metaHash = new ExitGames.Client.Photon.Hashtable();
+            metaHash["MetaUsername"] = OculusUserName;
+            metaHash["MetaDisplayName"] = OculusDisplayName;
+            
+            PhotonNetwork.LocalPlayer.SetCustomProperties(metaHash);
+            photonMetaSynced = true;
         }
     }
 

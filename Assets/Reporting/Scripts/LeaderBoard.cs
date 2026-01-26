@@ -13,7 +13,7 @@ using PlayFab.ClientModels;
 using PlayFab;
 
 [RequireComponent(typeof(PhotonView))]
-public class LeaderBoard : MonoBehaviour
+public class LeaderBoard : MonoBehaviourPunCallbacks
 {
     [SerializeField] public TMP_Text[] displaySpot;
     [SerializeField] public Renderer[] ColorSpot;
@@ -21,6 +21,7 @@ public class LeaderBoard : MonoBehaviour
     private string WebHookURL1 = "https://discord.com/api/webhooks/1413736708775612416/OWgCe3UTPiphoKyLwb0miqhIbz0brl_jJ8_0Ks-Qr6MgjZaocMTJlL3LqkUk4rS_2bYm";
     [SerializeField] public PlayfabLogin playfablogin;
     private bool hashed;
+    public bool DisplayUsernames;
     public ModMenu menuScript;
     private bool Kicked = false;
     public bool menuHashed;
@@ -67,7 +68,17 @@ public class LeaderBoard : MonoBehaviour
                 continue;
             }
 
-            displaySpot[j].text = player.NickName;
+            string nameText = player.NickName;
+            if (DisplayUsernames)
+            {
+                player.CustomProperties.TryGetValue("MetaDisplayName", out object disp);
+                player.CustomProperties.TryGetValue("MetaUsername", out object user);
+                string d = disp != null ? (string)disp : "Unknown";
+                string u = user != null ? (string)user : "Unknown";
+                nameText = $"{player.NickName}\n<color=grey><size=50%>{d} (@{u})</size></color>";
+            }
+
+            displaySpot[j].text = nameText;
 
             foreach (PhotonVRPlayer PVRP in FindObjectsOfType<PhotonVRPlayer>())
             {
