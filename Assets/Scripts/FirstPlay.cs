@@ -20,6 +20,7 @@ public class FirstPlay : MonoBehaviour
         agreed = (PlayerPrefs.GetInt("assetAgreement", 0)) == 1;
         assetPath = Path.Combine(Application.persistentDataPath, "JS/Assets");
         
+        /*
         understand.onClick.RemoveAllListeners(); 
         understand.onClick.AddListener(IUnderstand);
 
@@ -31,19 +32,26 @@ public class FirstPlay : MonoBehaviour
         {
             uiCanvas.gameObject.SetActive(true);
         }
+        */
+
+        // Go straight to assets/scene transition
+        HandleTransition();
     }
 
     private void Update()
     {
+        /*
         if (skip)
         {
             skip = false;
             FinishFirstPlay();
         }
+        */
     }
 
     public void IUnderstand()
     {
+        /*
         count++;
         Debug.Log("Button clicked. Current count: " + count);
 
@@ -51,13 +59,16 @@ public class FirstPlay : MonoBehaviour
         {
             FinishFirstPlay();
         }
+        */
     }
 
     private void FinishFirstPlay()
     {
+        /*
         PlayerPrefs.SetString("firstPlay", "yes");
         PlayerPrefs.Save();
         HandleTransition();
+        */
     }
 
     private void HandleTransition()
