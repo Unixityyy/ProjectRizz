@@ -3902,7 +3902,7 @@ MonoBehaviour:
   - SlotName: Trail
     Object: {fileID: 7817325917753970711}
   - SlotName: Particles
-    Object: {fileID: 7817325917753970711}
+    Object: {fileID: 7828573926045063247}
   NameText: {fileID: 3287702329282571007}
   HideLocalPlayer: 0
   alwaysCheckThese: []
