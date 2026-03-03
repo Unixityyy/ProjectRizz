@@ -25,7 +25,7 @@ public class CallMod : MonoBehaviour
 
     private void ModCall(string Reason)
     {
-        string jsonPayload = "{\"content\": \"<@&1355942327583248494> Player has called for mod! Reason: " + Reason + ", Player ID is " + playfablogin.MyPlayFabID + ".\", \"allowed_mentions\": {\"parse\": [\"everyone\"]}}";
+        string jsonPayload = "{\"content\": \"<@&1365098055518654565> Player has called for mod! Reason: " + Reason + ", Player ID is " + playfablogin.MyPlayFabID + ".\", \"allowed_mentions\": {\"parse\": [\"roles\"]}}";
         UnityWebRequest www = new UnityWebRequest(WebhookURL, "POST");
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonPayload);
         www.uploadHandler = new UploadHandlerRaw(jsonToSend);
