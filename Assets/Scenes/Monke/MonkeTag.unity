@@ -129206,7 +129206,7 @@ PrefabInstance:
       objectReference: {fileID: 2137033970}
     - target: {fileID: 1543532370466239555, guid: bba51de93ece20c47a0ff89785a94fa1, type: 3}
       propertyPath: useAttestation
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1543532370466239555, guid: bba51de93ece20c47a0ff89785a94fa1, type: 3}
       propertyPath: disableitems.Array.size
