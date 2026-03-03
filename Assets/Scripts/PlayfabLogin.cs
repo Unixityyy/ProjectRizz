@@ -13,6 +13,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using Photon.Voice;
+using Photon.Voice.Unity;
+using Photon.Voice.PUN;
 
 public class BypassCertificate : CertificateHandler
 {
@@ -59,7 +62,7 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
     private bool hashed;
     private bool UsernameGot;
     private bool photonMetaSynced = false;
-    private string backendUrl = "https://happy-tiffi-unixityyy-45c13271.koyeb.app/secure-login";
+    private string backendUrl = "https://dzhkj7xsbckrhwodmsxllguc2i0cxxqs.lambda-url.us-east-1.on.aws/";
 
     public void ModCall(string Reason)
     {
@@ -111,37 +114,6 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
         }
     }
 
-    private void OnEntitlementCheckComplete(Message msg)
-    {
-        if (msg.IsError)
-        {
-            MOTDText.text = "NOT ENTITLED TO APP!";
-            Debug.LogError("Entitlement Error: " + msg.GetError().Message);
-        }
-        else
-        {
-            MetaAuthSuceed = true;
-
-            if (useAttestation)
-            {
-                Oculus.Platform.Users.GetUserProof().OnComplete(tokenMsg => {
-                    if (!tokenMsg.IsError)
-                    {
-                        StartCoroutine(SecureLoginRoutine(tokenMsg.Data.Value));
-                    }
-                    else
-                    {
-                        Debug.LogError("Failed to get User Proof: " + tokenMsg.GetError().Message);
-                    }
-                });
-            }
-            else
-            {
-                LoginWithCustomID();
-            }
-        }
-    }
-
     void LoginWithCustomID()
     {
         var request = new LoginWithCustomIDRequest
@@ -152,52 +124,75 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
         PlayFabClientAPI.LoginWithCustomID(request, OnCustomIDLoginSuccess, OnError);
     }
 
+    private void OnEntitlementCheckComplete(Message msg)
+    {
+        if (msg.IsError)
+        {
+            MOTDText.text = "NOT ENTITLED TO APP!";
+        }
+        else
+        {
+            MetaAuthSuceed = true;
+            LoginWithCustomID(); 
+        }
+    }
+
     private void OnCustomIDLoginSuccess(LoginResult result)
     {
         playFabTicket = result.SessionTicket;
         MyPlayFabID = result.PlayFabId;
-        HandlePostLogin();
+
+        if (useAttestation)
+        {
+#if UNITY_STANDALONE_ANDROID && !UNITY_EDITOR
+            string nonce = System.Guid.NewGuid().ToString();
+
+            Oculus.Platform.DeviceApplicationIntegrity.GetIntegrityToken(nonce).OnComplete(message => {
+                if (!message.IsError) {
+                    string integrityToken = message.Data;
+                    Debug.Log("got integ token");
+                    StartCoroutine(SecureLoginRoutine(integrityToken));
+                } else {
+                    var error = message.GetError();
+                    Debug.LogError($"integ err: {error.Code} - {error.Message}");
+                    MOTDText.text = "SECURITY CHECK FAILED";
+                }
+            });
+#elif UNITY_EDITOR
+            HandlePostLogin();
+#endif
+        }
     }
 
     IEnumerator SecureLoginRoutine(string attestationToken)
     {
-        string legacyId = SystemInfo.deviceUniqueIdentifier;
-        string nonce = System.Guid.NewGuid().ToString();
+        string jsonPayload = "{\"attestation_token\":\"" + attestationToken + "\", \"playfab_id\":\"" + MyPlayFabID + "\"}";
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
 
-        var loginData = new
+        using (UnityWebRequest request = new UnityWebRequest(backendUrl, "POST"))
         {
-            oculus_id = OculusID,
-            legacy_id = legacyId,
-            attestation_token = attestationToken,
-            nonce = nonce
-        };
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
 
-        string json = JsonUtility.ToJson(loginData);
-        using (UnityWebRequest www = new UnityWebRequest(backendUrl, "POST"))
-        {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            www.downloadHandler = new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type", "application/json");
-            www.certificateHandler = new BypassCertificate();
+            yield return request.SendWebRequest();
 
-            yield return www.SendWebRequest();
-
-            if (www.result == UnityWebRequest.Result.Success)
+            if (request.result == UnityWebRequest.Result.Success)
             {
-                var response = JsonUtility.FromJson<SecureLoginResponse>(www.downloadHandler.text);
-                playFabTicket = response.SessionTicket;
-                MyPlayFabID = response.PlayFabId;
-                PlayFabSettings.staticPlayer.ClientSessionTicket = playFabTicket;
+                Debug.Log("attestation success");
+
                 HandlePostLogin();
             }
             else
             {
-                Debug.LogError("Secure Login Failed: " + www.error);
-                OnError(new PlayFabError { Error = PlayFabErrorCode.ServiceUnavailable });
+                MOTDText.text = "META HORIZON ATTESTATION HAS FAILED. PLEASE RESTART THE GAME. IF THIS KEEPS HAPPENING REINSTALL THE GAME.";
+                Debug.LogError("attestation fail: " + request.error);
             }
         }
     }
+
+    public override void OnCreateRoomFailed(short returnCode, string message) => Debug.LogError($"Create Room Failed: {message}");
+    public override void OnJoinRoomFailed(short returnCode, string message) => Debug.LogError($"Join Room Failed: {message}");
 
     private void HandlePostLogin()
     {
@@ -207,15 +202,17 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
         UpdatePlayFabMetaInfo();
 
         PlayFabClientAPI.GetAccountInfo(new GetAccountInfoRequest(), result => {
-            string username = result.AccountInfo.Username;
+            string username = result.AccountInfo.TitleInfo.DisplayName;
             if (string.IsNullOrEmpty(username))
             {
-                string numbers = null;
-                for (int i = 0; i < 4; i++) numbers += Random.Range(0, 10).ToString();
+                string numbers = Random.Range(0, 9999).ToString("D4");
                 string newUsername = "RIZZ" + numbers;
-
                 PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest { DisplayName = newUsername }, null, null);
                 PhotonVRManager.SetUsername(newUsername);
+            }
+            else
+            {
+                PhotonVRManager.SetUsername(username);
             }
         }, OnPlayFabError);
 
@@ -257,6 +254,19 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
     {
         if (MetaAuthSuceed && !string.IsNullOrEmpty(MyPlayFabID))
         {
+            AuthenticationValues authValues = new AuthenticationValues();
+            authValues.AuthType = CustomAuthenticationType.Custom;
+
+            authValues.AddAuthParameter("username", MyPlayFabID);
+            authValues.AddAuthParameter("token", result.PhotonCustomAuthenticationToken);
+
+            PhotonNetwork.AuthValues = authValues;
+
+            if (PunVoiceClient.Instance != null)
+            {
+                PunVoiceClient.Instance.Client.AuthValues = authValues;
+            }
+
             PhotonNetwork.ConnectUsingSettings();
         }
     }
@@ -274,7 +284,7 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
                 {
                     foreach (var sItem in specialitems) if (sItem.name == item.ItemId) sItem.SetActive(true);
                     foreach (var dItem in disableitems) if (dItem.name == item.ItemId) dItem.SetActive(false);
-                    if (item.ItemId == "Vents") KickButtons.SetActive(true);
+                    if (item.ItemId == "Moderator") KickButtons.SetActive(true);
                 }
             }
         }, OnError);
