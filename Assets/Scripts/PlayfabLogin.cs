@@ -161,6 +161,9 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
 #elif UNITY_EDITOR
             HandlePostLogin();
 #endif
+        } else
+        {
+            HandlePostLogin();
         }
     }
 
