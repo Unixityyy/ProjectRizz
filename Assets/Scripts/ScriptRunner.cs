@@ -295,11 +295,11 @@ public class ScriptRunner : MonoBehaviour
         }
         catch (JavaScriptException jex)
         {
-            Debug.LogError($"[JINT] JS Initialization Error: {jex.Message}");
+            Debug.LogError($"JS: Initialization Error: {jex.Message}");
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[ScriptRunner] Host Initialization Error: {ex.Message}");
+            Debug.LogError($"JS: Host Initialization Error: {ex.Message}");
         }
     }
 
@@ -322,12 +322,12 @@ public class ScriptRunner : MonoBehaviour
         }
         catch (JavaScriptException jex)
         {
-            Debug.LogError($"[JINT] JS Runtime Error in tick(): {jex.Message}");
+            Debug.LogError($"JS: Error in tick(): {jex.Message}");
             _scriptLoaded = false;
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[ScriptRunner] Host Error in tick(): {ex.Message}");
+            Debug.LogError($"JS: Host Error in tick(): {ex.Message}");
             _scriptLoaded = false;
         }
     }
