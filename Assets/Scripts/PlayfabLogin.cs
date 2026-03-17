@@ -35,6 +35,7 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
     public string MyPlayFabID;
     public string CatalogName;
     public GameObject KickButtons;
+    public GameObject FlingButtons;
     public List<GameObject> specialitems;
     public List<GameObject> disableitems;
     [Header("CURRENCY")]
@@ -288,6 +289,7 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
                     foreach (var sItem in specialitems) if (sItem.name == item.ItemId) sItem.SetActive(true);
                     foreach (var dItem in disableitems) if (dItem.name == item.ItemId) dItem.SetActive(false);
                     if (item.ItemId == "Moderator") KickButtons.SetActive(true);
+                    if (item.ItemId == "Moderator") FlingButtons.SetActive(true);
                 }
             }
         }, OnError);

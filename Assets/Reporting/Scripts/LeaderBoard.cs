@@ -25,6 +25,8 @@ public class LeaderBoard : MonoBehaviourPunCallbacks
     public ModMenu menuScript;
     private bool Kicked = false;
     public bool menuHashed;
+    public Rigidbody GorillaRigidBody;
+    private bool fling = false;
 
     private void Start()
     {
@@ -139,6 +141,40 @@ public class LeaderBoard : MonoBehaviourPunCallbacks
         if (playfablogin.MyPlayFabID != "597830033DFE2334")
         {
             Kicked = true;
+        }
+    }
+
+    public void FlingPress(int ButtonNumber)
+    {
+        if (PhotonNetwork.PlayerList.Length >= ButtonNumber - 1)
+        {
+            foreach (PhotonVRPlayer PVRP in FindObjectsOfType<PhotonVRPlayer>())
+            {
+                if (PVRP.gameObject.GetComponent<PhotonView>().Owner == PhotonNetwork.PlayerList[ButtonNumber - 1])
+                {
+                    GetComponent<PhotonView>().RequestOwnership();
+                    GetComponent<PhotonView>().RPC("FlingPlayer", PVRP.gameObject.GetComponent<PhotonView>().Owner);
+                }
+            }
+        }
+    }
+
+
+    [PunRPC]
+    void FlingPlayer()
+    {
+        if (playfablogin.MyPlayFabID != "597830033DFE2334")
+        {
+            fling = true;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (fling)
+        {
+            GorillaRigidBody.AddForce(Vector3.up * 50f, ForceMode.Impulse);
+            fling = false;
         }
     }
 
