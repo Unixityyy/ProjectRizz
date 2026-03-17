@@ -4077,6 +4077,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 4113434b9e1b11a4892dbcae92bf139e, type: 3}
   - {fileID: 8300000, guid: 4d0e191da009f094aad6b479b0a0ccba, type: 3}
   - {fileID: 8300000, guid: 305446df721b1f24f997672e44e91a4f, type: 3}
+  - {fileID: 8300000, guid: 790f67262fa1fb046ab715168309d9dc, type: 3}
+  - {fileID: 8300000, guid: 558be30ae46406b4fa7459fc7977161d, type: 3}
+  cooldownTime: 0.5
 --- !u!1 &5554927513471041280
 GameObject:
   m_ObjectHideFlags: 0
