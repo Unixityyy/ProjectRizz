@@ -20,7 +20,8 @@ namespace Mfuscator {
 			renameExportsBlacklist = string.Empty,
 			removeMonoExports = true,
 			modifyInternalStructures = false,
-			detectProxyLibraries = false
+			detectProxyLibraries = false,
+			detectProxyLibrariesWhitelist = string.Empty
 		};
 	}
 	internal static class Settings {
@@ -42,7 +43,8 @@ namespace Mfuscator {
 				try {
 					_object = JsonUtility.FromJson<SettingsObject>(File.ReadAllText(Filepath));
 					return;
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					Utils.LogError($"Failed to load \"{Filepath}\"\n{e}");
 				}
 			_object = new();
@@ -192,9 +194,16 @@ namespace Mfuscator {
 			Add<bool, Toggle>(root, Settings.Object.inter.modifyInternalStructures, "Modify Internal Structures <b>(Experimental)</b>", v => {
 				Settings.Object.inter.modifyInternalStructures = v;
 			}, "Modifies internal IL2CPP data structures to break advanced runtime analysis and dumping tools");
+			TextField detectProxyLibrariesWhitelistTextField = null;
 			Add<bool, Toggle>(root, Settings.Object.inter.detectProxyLibraries, "Detect Proxy Libraries", v => {
 				Settings.Object.inter.detectProxyLibraries = v;
+				detectProxyLibrariesWhitelistTextField.style.display = Settings.Object.inter.detectProxyLibraries ? DisplayStyle.Flex : DisplayStyle.None;
 			}, "Scans for common proxy libraries (DLLs) often used for cheating");
+			detectProxyLibrariesWhitelistTextField = Add<string, TextField>(root, Settings.Object.inter.detectProxyLibrariesWhitelist, "Proxy Exclusion", v => {
+				Settings.Object.inter.detectProxyLibrariesWhitelist = v;
+			}, "List DLL names (one per line, e.g. 'MyMod.dll') to allow when 'Detect Proxy Libraries' is enabled");
+			detectProxyLibrariesWhitelistTextField.multiline = true;
+			detectProxyLibrariesWhitelistTextField.style.display = Settings.Object.inter.detectProxyLibraries ? DisplayStyle.Flex : DisplayStyle.None;
 			AddSpacer(root, 8f);
 			AddButton(root, "<b>Restore Default Settings</b>", "f0ad", () => {
 				if (EditorUtility.DisplayDialog("Mfuscator", "Are you sure you want to reset the settings to default?", "Proceed", "Cancel")) {

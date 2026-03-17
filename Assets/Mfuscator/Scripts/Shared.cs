@@ -8,7 +8,7 @@ namespace Mfuscator {
 
 		// NOTE: must be compatible with "netstandard2.1"
 
-		public const int BUILD_NUMBER = 217;
+		public const int BUILD_NUMBER = 219;
 
 		public enum LogType : byte {
 			Info,
@@ -37,6 +37,7 @@ namespace Mfuscator {
 			public bool removeMonoExports;
 			public bool modifyInternalStructures;
 			public bool detectProxyLibraries;
+			public string detectProxyLibrariesWhitelist;
 		}
 
 		public const string SET_LOG_CALLBACK_ENTRY_POINT = "set_log_callback";
