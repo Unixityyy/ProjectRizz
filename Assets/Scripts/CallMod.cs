@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Text;
+using Photon.Pun;
 
 public class CallMod : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class CallMod : MonoBehaviour
 
     private void ModCall(string Reason)
     {
-        string jsonPayload = "{\"content\": \"<@&1355942327583248494> Player has called for mod! Reason: " + Reason + ", Player ID is " + playfablogin.MyPlayFabID + ".\", \"allowed_mentions\": {\"parse\": [\"roles\"]}}";
+        string jsonPayload = "{\"content\": \"<@&1355942327583248494> Player has called for mod! Reason: " + Reason + ", Player ID is " + playfablogin.MyPlayFabID + ". Server: " + PhotonNetwork.CurrentRoom.Name + "\", \"allowed_mentions\": {\"parse\": [\"roles\"]}}";
         UnityWebRequest www = new UnityWebRequest(WebhookURL, "POST");
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonPayload);
         www.uploadHandler = new UploadHandlerRaw(jsonToSend);
