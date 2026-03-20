@@ -163,10 +163,11 @@ public class LeaderBoard : MonoBehaviourPunCallbacks
     [PunRPC]
     void FlingPlayer()
     {
-        if (playfablogin.MyPlayFabID != "597830033DFE2334")
-        {
+        // no check since i wanna fling myself
+        // if (playfablogin.MyPlayFabID != "597830033DFE2334")
+        // {
             fling = true;
-        }
+        // }
     }
 
     private void FixedUpdate()

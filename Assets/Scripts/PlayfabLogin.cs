@@ -46,6 +46,7 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
     [Header("BANNED")]
     public string bannedscenename;
     [Header("TITLE DATA")]
+    public GameObject ModApps;
     public TextMeshPro MOTDText;
     [Header("PLAYER DATA")]
     public TextMeshPro UserName;
@@ -53,12 +54,13 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
     public string StartingUsername;
     public string Name;
     public TextMeshPro IDText;
-    public UnityEvent LoginEvent = new UnityEvent();
     public string OculusID;
     public string OculusUserName;
     public string OculusDisplayName;
+    [Header("MISC")]
+    public UnityEvent LoginEvent = new UnityEvent();
     public bool MetaAuthSuceed;
-
+    public TextMeshPro CurrentServer;
     private string playFabTicket;
     private bool hashed;
     private bool UsernameGot;
@@ -238,7 +240,14 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
             
             PhotonNetwork.LocalPlayer.SetCustomProperties(customProps);
         }
+        CurrentServer.text = $"CURRENT SERVER: {PhotonNetwork.CurrentRoom.Name}";
     }
+
+    public override void OnLeftRoom()
+    {
+        CurrentServer.text = $"CURRENT SERVER: NONE";
+    }
+
 
     void UpdatePlayFabMetaInfo()
     {
@@ -302,6 +311,10 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
             if (result.Data != null && result.Data.ContainsKey("MOTD"))
             {
                 MOTDText.text = result.Data["MOTD"];
+            }
+            if (result.Data.ContainsKey("ModApps"))
+            {
+                ModApps.SetActive(bool.TryParse(result.Data["ModApps"], out bool isEnabled) && isEnabled);
             }
         }, OnError);
     }

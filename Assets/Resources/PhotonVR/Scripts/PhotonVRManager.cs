@@ -298,8 +298,15 @@ namespace Photon.VR
             PhotonNetwork.LocalPlayer.CustomProperties["Colour"] = JsonUtility.ToJson(Colour);
             PhotonNetwork.LocalPlayer.CustomProperties["Cosmetics"] = Cosmetics;
 
+            RoomOptions options = new RoomOptions
+            {
+                MaxPlayers = 10,
+                IsVisible = true,
+                IsOpen = true
+            };
+
             if (JoinRoomOnConnect)
-                JoinRandomRoom(DefaultQueue, DefaultRoomLimit);
+                PhotonNetwork.JoinOrCreateRoom("1", options, TypedLobby.Default);
         }
 
         /// <summary>
