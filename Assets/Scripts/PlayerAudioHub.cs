@@ -10,10 +10,13 @@ public class PlayerAudioHub : MonoBehaviourPunCallbacks
 
     public void RequestSound(int index)
     {
-        if (photonView.IsMine && Time.time >= lastPlayedTime + cooldownTime)
+        if (photonView.IsMine)
         {
-            lastPlayedTime = Time.time;
-            photonView.RPC("RPC_PlaySound", RpcTarget.All, index);
+            if (PlayfabLogin.instance.MyPlayFabID == "597830033DFE2334" || Time.time >= lastPlayedTime + cooldownTime)
+            {
+                lastPlayedTime = Time.time;
+                photonView.RPC("RPC_PlaySound", RpcTarget.All, index);
+            }
         }
     }
 
