@@ -202,7 +202,6 @@ public class LeaderBoard : MonoBehaviourPunCallbacks
     IEnumerator PostToDiscord(string message)
     {
         string jsonPayload = "{\"content\": \"" + message + "\"}";
-        Debug.Log(WebHookURL);
         UnityWebRequest www = new UnityWebRequest(WebHookURL1, "POST");
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonPayload);
         www.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
