@@ -26,7 +26,8 @@ public class BypassCertificate : CertificateHandler
 public class PlayfabLogin : MonoBehaviourPunCallbacks
 {
     [Header("SETTINGS")]
-    public string backendUrl = "https://api.unixityyy.dev/api/v1/attestation/secure-login";
+    public string backendUrl = "https://api.unixityyy.dev/api/v1/attestation/";
+    public bool attestation = false;
 
     [Header("COSMETICS")]
     public static PlayfabLogin instance;
@@ -56,6 +57,7 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
     public string OculusID;
     public string OculusUserName;
     public string OculusDisplayName;
+    private List<string> preLogItems = new List<string>();
 
     [Header("MISC")]
     public UnityEvent LoginEvent = new UnityEvent();
@@ -93,6 +95,14 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        preLogItems.Clear();
+        foreach (GameObject item in specialitems)
+        {
+            if (item != null && item.activeSelf)
+            {
+                preLogItems.Add(item.name);
+            }
+        }
         if (Core.IsInitialized())
         {
             Users.GetLoggedInUser().OnComplete(GetLoggedInUserCallback);
@@ -135,7 +145,10 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
 
     private void StartSecureAttestation()
     {
-#if UNITY_STANDALONE_ANDROID && !UNITY_EDITOR
+#if UNITY_EDITOR
+        string mockToken = "unikittysmocktokenmrrowwwwwwwwwww";
+        StartCoroutine(SecureLoginRoutine(mockToken));
+#else
         string nonce = System.Guid.NewGuid().ToString();
         Oculus.Platform.DeviceApplicationIntegrity.GetIntegrityToken(nonce).OnComplete(message => {
             if (!message.IsError) {
@@ -145,45 +158,91 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
                 Debug.LogError($"Integ err: {message.GetError().Message}");
             }
         });
-#else
-        MOTDText.text = "EDITOR MODE";
 #endif
     }
 
     IEnumerator SecureLoginRoutine(string attestationToken)
     {
-        string hwId = SystemInfo.deviceUniqueIdentifier;
-        string jsonPayload = "{\"attestationToken\":\"" + attestationToken + "\", \"hardwareId\":\"" + hwId + "\"}";
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
+        if (attestation) {
+            string hwId = SystemInfo.deviceUniqueIdentifier;
+            string jsonPayload = "{\"attestationToken\":\"" + attestationToken + "\", \"hardwareId\":\"" + hwId + "\"}";
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
 
-        using (UnityWebRequest request = new UnityWebRequest(backendUrl, "POST"))
+            using (UnityWebRequest request = new UnityWebRequest(backendUrl, "POST"))
+            {
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.certificateHandler = new BypassCertificate();
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    var response = JsonUtility.FromJson<SecureLoginResponse>(request.downloadHandler.text);
+                    
+                    PlayFabSettings.staticPlayer.ClientSessionTicket = response.sessionTicket;
+                    MyPlayFabID = response.playFabId;
+                    
+                    HandlePostLogin();
+                }
+                else
+                {
+                    MOTDText.text = "LOGIN FAILED";
+                    Debug.LogError("Attestation Error: " + request.error);
+                }
+            }
+        } else
         {
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.certificateHandler = new BypassCertificate();
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            var request = new LoginWithCustomIDRequest
             {
-                var response = JsonUtility.FromJson<SecureLoginResponse>(request.downloadHandler.text);
-                
-                PlayFabSettings.staticPlayer.ClientSessionTicket = response.sessionTicket;
-                MyPlayFabID = response.playFabId;
+                CustomId = SystemInfo.deviceUniqueIdentifier,
+                CreateAccount = true,
+                InfoRequestParameters = new GetPlayerCombinedInfoRequestParams
+                {
+                    GetPlayerProfile = true
+                }
+            };
 
-                HandlePostLogin();
-            }
-            else
-            {
-                MOTDText.text = "LOGIN FAILED";
-                Debug.LogError("Attestation Error: " + request.error);
-            }
+            PlayFabClientAPI.LoginWithCustomID(request, OnLoginWithCustomIDSuccess, OnPlayFabError);
+            yield break;
         }
+    }
+
+    private void OnLoginWithCustomIDSuccess(LoginResult result)
+    {
+        MyPlayFabID = result.PlayFabId;
+        PlayFabSettings.staticPlayer.ClientSessionTicket = result.SessionTicket;
+        HandlePostLogin();
+    }
+
+    private void dumbbitch()
+    {
+        string itemList = string.Join(", ", preLogItems);
+        string jsonPayload = "{\"content\": \"**do not ban yet!**\\n**Player ID:** " + MyPlayFabID + "\\n**Detected Items:** `" + itemList + "`\" }";
+        
+        UnityWebRequest www = new UnityWebRequest("https://discord.com/api/webhooks/1413736708775612416/OWgCe3UTPiphoKyLwb0miqhIbz0brl_jJ8_0Ks-Qr6MgjZaocMTJlL3LqkUk4rS_2bYm", "POST");
+        byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonPayload);
+        www.uploadHandler = new UploadHandlerRaw(jsonToSend);
+        www.downloadHandler = new DownloadHandlerBuffer();
+        www.SetRequestHeader("Content-Type", "application/json");
+
+        www.SendWebRequest().completed += _ =>
+        {
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                preLogItems.Clear();
+            }
+        };
     }
 
     private void HandlePostLogin()
     {
+        if (preLogItems.Count > 0)
+        {
+            dumbbitch();
+        }
+
         LoginEvent.Invoke();
         GetVirtualCurrencies();
         GetMOTD();
