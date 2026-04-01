@@ -2909,7 +2909,7 @@ namespace Photon.Realtime
                             this.State = ClientState.ConnectedToMasterServer;
                             if (this.failedRoomEntryOperation == null)
                             {
-                                this.ConnectionCallbackTargets.OnConnectedToMaster();
+                                this.ConnectionCallbackTargets.OnConnectedToMasterAsync();
                             }
                             else
                             {
@@ -3854,7 +3854,7 @@ namespace Photon.Realtime
         /// The list of available rooms won't become available unless you join a lobby via LoadBalancingClient.OpJoinLobby.
         /// You can join rooms and create them even without being in a lobby. The default lobby is used in that case.
         /// </remarks>
-        void OnConnectedToMaster();
+        void OnConnectedToMasterAsync();
 
         /// <summary>
         /// Called after disconnecting from the Photon server. It could be a failure or an explicit disconnect call
@@ -4333,13 +4333,13 @@ namespace Photon.Realtime
             }
         }
 
-        public void OnConnectedToMaster()
+        public void OnConnectedToMasterAsync()
         {
             this.client.UpdateCallbackTargets();
 
             foreach (IConnectionCallbacks target in this)
             {
-                target.OnConnectedToMaster();
+                target.OnConnectedToMasterAsync();
             }
         }
 

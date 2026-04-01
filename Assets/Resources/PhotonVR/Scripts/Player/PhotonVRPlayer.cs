@@ -1,9 +1,13 @@
+using Newtonsoft.Json;
 using Photon.Pun;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -81,7 +85,7 @@ namespace Photon.VR.Player
             _RefreshPlayerValues();
         }
 
-        private void _RefreshPlayerValues()
+        private async void _RefreshPlayerValues()
         {
             // Name
             if (NameText != null)
@@ -89,28 +93,62 @@ namespace Photon.VR.Player
 
             // Colour
             foreach (SkinnedMeshRenderer renderer in ColourObjects)
-            {
-                if(renderer != null)
-                    renderer.material.color = JsonUtility.FromJson<Color>((string)photonView.Owner.CustomProperties["Colour"]);
-            }
+                if (renderer != null)
+                    renderer.material.color = JsonUtility.FromJson<Color>(
+                        (string)photonView.Owner.CustomProperties["Colour"]
+                    );
 
-            // Cosmetics - it's a little ugly to look at
-            Dictionary<string, string> cosmetics = (Dictionary<string, string>)photonView.Owner.CustomProperties["Cosmetics"];
+            // Cosmetics — verify each slot token before rendering
+            Dictionary<string, string> cosmetics = 
+                (Dictionary<string, string>)photonView.Owner.CustomProperties["Cosmetics"];
+            Dictionary<string, string> tokens = 
+                (Dictionary<string, string>)photonView.Owner.CustomProperties["CosmeticTokens"];
+
+            if (cosmetics == null) return;
+
             foreach (KeyValuePair<string, string> cosmetic in cosmetics)
             {
+                string slotName = cosmetic.Key;
+                string claimedCosmeticId = cosmetic.Value;
+                string token = (tokens != null && tokens.ContainsKey(slotName)) ? tokens[slotName] : null;
+
+                bool isValid = false;
+                if (!string.IsNullOrEmpty(token))
+                    isValid = await VerifyCosmetic(token, claimedCosmeticId, slotName);
+
                 foreach (CosmeticSlot slot in CosmeticSlots)
                 {
-                    if (slot.SlotName == cosmetic.Key)
-                    {
-                        foreach (Transform cos in slot.Object)
-                            if (cos.name != cosmetic.Value)
-                                cos.gameObject.SetActive(false);
-                            else
-                            {
-                                cos.gameObject.SetActive(true);
-                            }
-                    }
+                    if (slot.SlotName != slotName) continue;
+                    foreach (Transform cos in slot.Object)
+                        cos.gameObject.SetActive(isValid && cos.name == claimedCosmeticId);
                 }
+            }
+        }
+
+        private static readonly HttpClient _http = new HttpClient();
+
+        private async Task<bool> VerifyCosmetic(string token, string claimedCosmeticId, string claimedSlot)
+        {
+            try
+            {
+                var payload = JsonConvert.SerializeObject(new { token });
+                var content = new StringContent(payload, Encoding.UTF8, "application/json");
+
+                var response = await _http.PostAsync("https://api.unixityyy.dev/api/v1/cosmetic/verify", content);
+                if (!response.IsSuccessStatusCode) return false;
+
+                var json = JsonConvert.DeserializeObject<Dictionary<string, object>>(
+                    await response.Content.ReadAsStringAsync()
+                );
+
+                return (bool)json["valid"]
+                    && (string)json["cosmeticId"] == claimedCosmeticId
+                    && (string)json["slotName"] == claimedSlot;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"VerifyCosmetic failed for slot {claimedSlot}: {e.Message}");
+                return false;
             }
         }
 

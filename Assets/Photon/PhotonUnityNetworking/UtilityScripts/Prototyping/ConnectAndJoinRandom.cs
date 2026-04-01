@@ -61,7 +61,7 @@ namespace Photon.Pun.UtilityScripts
         // Being a MonoBehaviourPunCallbacks means, we can override the few methods which are needed here.
 
 
-        public override void OnConnectedToMaster()
+        public override void OnConnectedToMasterAsync()
         {
             Debug.Log("OnConnectedToMaster() was called by PUN. This client is now connected to Master Server in region [" + PhotonNetwork.CloudRegion +
                 "] and can join a room. Calling: PhotonNetwork.JoinRandomRoom();");

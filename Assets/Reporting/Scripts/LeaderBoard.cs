@@ -17,9 +17,8 @@ public class LeaderBoard : MonoBehaviourPunCallbacks
 {
     [SerializeField] public TMP_Text[] displaySpot;
     [SerializeField] public Renderer[] ColorSpot;
-    public string WebHookURL = "https://discord.com/api/webhooks/1413894359581196388/u0rcLDI2d3A6hGBs3BUc2S4bCTGJpvPMhvtLn_yHgfprZ-caUEcuuiCjKDiG4Sqp8s7u";
-    private string WebHookURL1 = "https://discord.com/api/webhooks/1413736708775612416/OWgCe3UTPiphoKyLwb0miqhIbz0brl_jJ8_0Ks-Qr6MgjZaocMTJlL3LqkUk4rS_2bYm";
     [SerializeField] public PlayfabLogin playfablogin;
+    public string ReportURL = "https://api.unixityyy.dev/api/v1/report";
     private bool hashed;
     public bool DisplayUsernames;
     public ModMenu menuScript;
@@ -163,11 +162,11 @@ public class LeaderBoard : MonoBehaviourPunCallbacks
     [PunRPC]
     void FlingPlayer()
     {
-        // no check since i wanna fling myself
-        // if (playfablogin.MyPlayFabID != "597830033DFE2334")
-        // {
+        // i dont wanna get fling no mor :(
+        if (playfablogin.MyPlayFabID != "597830033DFE2334")
+        {
             fling = true;
-        // }
+        }
     }
 
     private void FixedUpdate()
@@ -201,17 +200,21 @@ public class LeaderBoard : MonoBehaviourPunCallbacks
 
     IEnumerator PostToDiscord(string message)
     {
-        string jsonPayload = "{\"content\": \"" + message + "\"}";
-        UnityWebRequest www = new UnityWebRequest(WebHookURL1, "POST");
-        byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonPayload);
-        www.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
-        www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-        www.SetRequestHeader("Content-Type", "application/json");
-        yield return www.SendWebRequest();
+        string jsonPayload = "{\"message\": \"" + message + "\"}";
 
-        if (www.result != UnityWebRequest.Result.Success)
+        using (UnityWebRequest www = new UnityWebRequest(ReportURL, "POST"))
         {
-            Debug.LogError("Reporting Webhook Error: " + www.error);
+            byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonPayload);
+            www.uploadHandler = new UploadHandlerRaw(jsonToSend);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("API Forwarding Error: " + www.error);
+            }
         }
     }
 }

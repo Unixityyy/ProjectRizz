@@ -63,7 +63,7 @@ namespace Photon.Realtime
         /// speeds up best region selection and makes the previously selected region "sticky".<br/>
         ///
         /// Unity clients should store the BestRegionSummary in the PlayerPrefs.
-        /// You can store the new result by implementing <see cref="IConnectionCallbacks.OnConnectedToMaster"/>.
+        /// You can store the new result by implementing <see cref="IConnectionCallbacks.OnConnectedToMasterAsync"/>.
         /// If <see cref="LoadBalancingClient.SummaryToCache"/> is not null, store this string.
         /// To avoid storing the value multiple times, you could set SummaryToCache to null.
         /// </remarks>

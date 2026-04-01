@@ -313,7 +313,7 @@ namespace Photon.Pun
         /// The list of available rooms won't become available unless you join a lobby via LoadBalancingClient.OpJoinLobby.
         /// You can join rooms and create them even without being in a lobby. The default lobby is used in that case.
         /// </remarks>
-        public virtual void OnConnectedToMaster()
+        public virtual void OnConnectedToMasterAsync()
         {
         }
 
