@@ -24,7 +24,7 @@ public class ServerBtns : MonoBehaviourPunCallbacks
         }
     }
 
-    public override void OnConnectedToMaster()
+    public override void OnConnectedToMasterAsync()
     {
         if (!string.IsNullOrEmpty(pendingRoomCode))
         {

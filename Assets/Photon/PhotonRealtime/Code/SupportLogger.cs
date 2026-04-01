@@ -299,7 +299,7 @@ namespace Photon.Realtime
             this.StartTrackValues();
         }
 
-        public void OnConnectedToMaster()
+        public void OnConnectedToMasterAsync()
         {
 			Debug.Log(this.GetFormattedTimestamp() + " SupportLogger OnConnectedToMaster().");
         }

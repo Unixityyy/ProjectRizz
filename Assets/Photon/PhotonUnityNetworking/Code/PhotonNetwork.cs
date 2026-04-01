@@ -463,7 +463,7 @@ namespace Photon.Pun
                 if (offlineMode)
                 {
                     NetworkingClient.ChangeLocalID(-1, true);
-                    NetworkingClient.ConnectionCallbackTargets.OnConnectedToMaster();
+                    NetworkingClient.ConnectionCallbackTargets.OnConnectedToMasterAsync();
                 }
                 else
                 {
@@ -2028,7 +2028,7 @@ namespace Photon.Pun
             {
                 offlineModeRoom = null;
                 NetworkingClient.MatchMakingCallbackTargets.OnLeftRoom();
-                NetworkingClient.ConnectionCallbackTargets.OnConnectedToMaster();
+                NetworkingClient.ConnectionCallbackTargets.OnConnectedToMasterAsync();
             }
             else
             {

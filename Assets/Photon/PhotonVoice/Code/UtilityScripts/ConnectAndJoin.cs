@@ -104,7 +104,7 @@ namespace Photon.Voice.Unity.UtilityScripts
 
         }
 
-        public void OnConnectedToMaster()
+        public void OnConnectedToMasterAsync()
         {
             this.enterRoomParams.RoomOptions.PublishUserId = this.publishUserId;
             if (this.RandomRoom)
