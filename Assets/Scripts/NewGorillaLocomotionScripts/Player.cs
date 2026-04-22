@@ -33,7 +33,7 @@
         private Vector3 lastRightHandPosition;
         private Vector3 lastHeadPosition;
 
-        private Rigidbody playerRigidBody;
+        public Rigidbody playerRigidBody;
 
         public int velocityHistorySize;
         public float maxArmLength = 1.5f;

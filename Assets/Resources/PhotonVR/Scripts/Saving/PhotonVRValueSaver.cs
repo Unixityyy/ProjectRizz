@@ -13,6 +13,8 @@ namespace Photon.VR.Saving
             {
                 PlayerPrefs.SetString(location + kv.Key, kv.Value.ToString());
             }
+
+            PlayerPrefs.Save();
         }
 
         public static Dictionary<string, string> GetDictionary(string location)

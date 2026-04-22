@@ -218,6 +218,7 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
 
     private void dumbbitch()
     {
+        // ts genuinely wont work with attestation but idk ill keep it if someone somehow bypasses attestation
         string itemList = string.Join(", ", preLogItems);
         string jsonPayload = "{\"content\": \"**do not ban yet!**\\n**Player ID:** " + MyPlayFabID + "\\n**Detected Items:** `" + itemList + "`\" }";
         
