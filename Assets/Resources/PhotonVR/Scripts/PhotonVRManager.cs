@@ -249,6 +249,7 @@ namespace Photon.VR
             hash["Colour"] = JsonUtility.ToJson(PlayerColour);
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
             PlayerPrefs.SetString("Colour", JsonUtility.ToJson(PlayerColour));
+            PlayerPrefs.Save();
 
             if (PhotonNetwork.InRoom)
                 if (Manager.LocalPlayer != null)
@@ -259,21 +260,12 @@ namespace Photon.VR
         /// Sets the cosmetics
         /// </summary>
         /// <param name="PlayerCosmetics">The cosmetics you want to set</param>
-        public static async Task SetCosmetics(Dictionary<string, string> PlayerCosmetics)
+        public static void SetCosmetics(Dictionary<string, string> PlayerCosmetics)
         {
             Manager.Cosmetics = PlayerCosmetics;
 
-            Dictionary<string, string> tokens = new Dictionary<string, string>();
-            foreach (KeyValuePair<string, string> cosmetic in PlayerCosmetics)
-            {
-                string token = await EquipCosmetic(PlayFabSettings.staticPlayer.ClientSessionTicket, cosmetic.Value, cosmetic.Key);
-                if (token != null)
-                    tokens[cosmetic.Key] = token;
-            }
-
             var hash = PhotonNetwork.LocalPlayer.CustomProperties;
             hash["Cosmetics"] = Manager.Cosmetics;
-            hash["CosmeticTokens"] = tokens;
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
             PhotonVRValueSaver.SaveDictionary("Cosmetics", Manager.Cosmetics);
@@ -284,77 +276,20 @@ namespace Photon.VR
         /// Sets a specefic cosmetic
         /// </summary>
         /// <param name="Type">The type of cosmetic you want to set</param>
-        public static async void SetCosmetic(string Type, string CosmeticId)
+        public static void SetCosmetic(string Type, string CosmeticId)
         {
             Manager.Cosmetics[Type] = CosmeticId;
 
-            // Equip and get token for this slot
-            string token = await EquipCosmetic(PlayFabSettings.staticPlayer.ClientSessionTicket, CosmeticId, Type);
-
-            var existingTokens = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("CosmeticTokens")
-                ? (Dictionary<string, string>)PhotonNetwork.LocalPlayer.CustomProperties["CosmeticTokens"]
-                : new Dictionary<string, string>();
-
-            if (token != null)
-                existingTokens[Type] = token;
-
             var hash = PhotonNetwork.LocalPlayer.CustomProperties;
             hash["Cosmetics"] = Manager.Cosmetics;
-            hash["CosmeticTokens"] = existingTokens;
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
             PhotonVRValueSaver.SaveDictionary("Cosmetics", Manager.Cosmetics);
             if (PhotonNetwork.InRoom && Manager.LocalPlayer != null)
                 Manager.LocalPlayer.RefreshPlayerValues();
         }
-        
-        private static readonly HttpClient _http = new HttpClient();
 
-        private static async Task<string> EquipCosmetic(string sessionTicket, string cosmeticId, string slotName)
-        {
-            try
-            {
-                var payload = JsonConvert.SerializeObject(new { sessionTicket, cosmeticId, slotName });
-                var content = new StringContent(payload, Encoding.UTF8, "application/json");
-
-                var response = await _http.PostAsync("https://api.unixityyy.dev/api/v1/cosmetic/equip", content);
-                if (!response.IsSuccessStatusCode)
-                {
-                    Debug.LogWarning($"Equip rejected for {slotName}/{cosmeticId}: {await response.Content.ReadAsStringAsync()}");
-                    return null;
-                }
-
-                var json = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                    await response.Content.ReadAsStringAsync()
-                );
-                return json["token"];
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"EquipCosmetic exception: {e.Message}");
-                return null;
-            }
-        }
-
-        public async void OnConnectedToMaster()
-        {
-            State = ConnectionState.Connected;
-            Debug.Log("Connected");
-
-            PhotonNetwork.LocalPlayer.NickName = PlayerPrefs.GetString("Username");
-            PhotonNetwork.LocalPlayer.CustomProperties["Colour"] = JsonUtility.ToJson(Colour);
-            await SetCosmetics(Cosmetics);
-
-            RoomOptions options = new RoomOptions
-            {
-                MaxPlayers = 10,
-                IsVisible = true,
-                IsOpen = true
-            };
-
-            if (JoinRoomOnConnect)
-                PhotonNetwork.JoinOrCreateRoom("1", options, TypedLobby.Default);
-        }
+        public void OnConnectedToMaster() {}
 
         /// <summary>
         /// Gets the connection state
@@ -444,7 +379,15 @@ namespace Photon.VR
         {
             Debug.Log("Joined a room");
             State = ConnectionState.InRoom;
-        }
+
+            var hash = PhotonNetwork.LocalPlayer.CustomProperties;
+            hash["Cosmetics"] = Cosmetics;
+            hash["Colour"] = JsonUtility.ToJson(Colour);
+            PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+
+            if (LocalPlayer != null)
+                LocalPlayer.RefreshPlayerValues();
+            }
 
         public override void OnDisconnected(DisconnectCause cause)
         {

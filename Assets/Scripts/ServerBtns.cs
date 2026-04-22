@@ -1,17 +1,17 @@
 using UnityEngine;
 using Photon.Pun;
+using Photon.VR;
 using Photon.Realtime;
 
-public class ServerBtns : MonoBehaviourPunCallbacks
+public class ServerBtns : MonoBehaviour
 {
     public string roomCode; 
-    public static string pendingRoomCode;
 
     private void OnTriggerEnter(Collider other)
     {
         if (PhotonNetwork.IsConnectedAndReady)
         {
-            pendingRoomCode = roomCode;
+            RoomManager.PendingRoomCode = roomCode;
 
             if (PhotonNetwork.InRoom)
             {
@@ -19,30 +19,10 @@ public class ServerBtns : MonoBehaviourPunCallbacks
             }
             else
             {
-                JoinTargetRoom();
+                // If not in a room, the Manager won't trigger OnLeftRoom, 
+                // so we manually call the join logic via a public method or join directly.
+                PhotonNetwork.JoinOrCreateRoom(roomCode, new RoomOptions { MaxPlayers = 10 }, TypedLobby.Default);
             }
         }
-    }
-
-    public override void OnConnectedToMasterAsync()
-    {
-        if (!string.IsNullOrEmpty(pendingRoomCode))
-        {
-            JoinTargetRoom();
-        }
-    }
-
-    private void JoinTargetRoom()
-    {
-        RoomOptions options = new RoomOptions
-        {
-            MaxPlayers = 10,
-            IsVisible = true,
-            IsOpen = true
-        };
-
-        string target = pendingRoomCode;
-        pendingRoomCode = null;
-        PhotonNetwork.JoinOrCreateRoom(target, options, TypedLobby.Default);
     }
 }

@@ -3908,7 +3908,6 @@ MonoBehaviour:
     Object: {fileID: 7828573926045063247}
   NameText: {fileID: 3287702329282571007}
   HideLocalPlayer: 0
-  alwaysCheckThese: []
 --- !u!114 &898607237399874742
 MonoBehaviour:
   m_ObjectHideFlags: 0
