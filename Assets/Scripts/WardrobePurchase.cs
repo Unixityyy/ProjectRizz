@@ -71,32 +71,9 @@ public class WardrobePurchase : MonoBehaviour
         Debug.Log("Error: " + error.GenerateErrorReport());
     }
 
-    void GetCatalogItemsSuccess(GetCatalogItemsResult result)
-    {
-        foreach (var item in result.Catalog)
-        {
-            if (item.ItemId == CosmeticName)
-            {
-                Debug.Log($"{CosmeticName}: {item.VirtualCurrencyPrices["RT"]}");
-                break;
-            }
-        }
-    }
-
     public void OnLoginEvent() 
     {
-        if (PlayerPrefs.GetInt(CosmeticName) == 1)
-        {
-            Debug.Log("converting");
-            PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest()
-                    {
-                        FunctionName = "playerPrefToPlayFab", // Arbitrary function name (must exist in your uploaded cloud.js file)
-                        FunctionParameter = new { itemName = CosmeticName }, // The parameter provided to your function
-                        GeneratePlayStreamEvent = true, // Optional - Shows this event in PlayStream
-                    }, OnConvertResult, OnErrorShared);
-        }
-        var request = new GetCatalogItemsRequest{};
-        PlayFabClientAPI.GetCatalogItems(request, GetCatalogItemsSuccess, OnError);
+        // not needed
     }
 
     private void Start()
