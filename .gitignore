@@ -78,3 +78,7 @@ crashlytics-build.properties
 # Uncomment this if you are not using PlasticSCM
 # As this will unlink your project from the cloud!
 .plastic/
+
+MFSSettings.json
+/[Aa]ssets/[Mm]fuscator/
+*.keystore
