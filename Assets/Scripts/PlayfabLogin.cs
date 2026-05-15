@@ -214,11 +214,6 @@ public class PlayfabLogin : MonoBehaviourPunCallbacks
 
     private void HandlePostLogin()
     {
-        if (preLogItems.Count > 0)
-        {
-            dumbbitch();
-        }
-
         LoginEvent.Invoke();
         GetVirtualCurrencies();
         GetMOTD();
