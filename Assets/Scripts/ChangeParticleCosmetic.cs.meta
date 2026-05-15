@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts/Clicker/Click.cs.meta
+guid: f23008fd991a21e4a9a9f5de2a791b16
+========
 guid: c350f47a96642854c853f7641ceb4772
+>>>>>>>> ff9de21d656d682d71c553f420a8e27c9b9e05ec:Assets/Scripts/ChangeParticleCosmetic.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
