@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts/Clicker/Saving.cs.meta
 guid: 85d032f7992d50b498cf8f6e6cf17041
+========
+guid: f23008fd991a21e4a9a9f5de2a791b16
+>>>>>>>> ff9de21d656d682d71c553f420a8e27c9b9e05ec:Assets/Scripts/Clicker/Click.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

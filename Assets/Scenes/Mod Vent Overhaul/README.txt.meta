@@ -1,7 +1,13 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scenes/Mod Vent Overhaul/README.txt.meta
 guid: a80afb53adbebc7489c431c15c3abe9f
 TextScriptImporter:
+========
+guid: d6eca9fca1ddbd74d90964b2edb72ab6
+NativeFormatImporter:
+>>>>>>>> ff9de21d656d682d71c553f420a8e27c9b9e05ec:Assets/Materials/Translucent.mat.meta
   externalObjects: {}
+  mainObjectFileID: 2100000
   userData: 
   assetBundleName: 
   assetBundleVariant: 

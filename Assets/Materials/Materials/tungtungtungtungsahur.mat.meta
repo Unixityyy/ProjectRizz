@@ -1,4 +1,5 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 <<<<<<<< HEAD:Assets/Scenes/Mod Vent Overhaul/README.txt.meta
 guid: a80afb53adbebc7489c431c15c3abe9f
 TextScriptImporter:
@@ -6,6 +7,14 @@ TextScriptImporter:
 guid: c5e694d9c1c18a9488ed7fe58aac1d7c
 NativeFormatImporter:
 >>>>>>>> ff9de21d656d682d71c553f420a8e27c9b9e05ec:Assets/Materials/Materials/tungtungtungtungsahur.mat.meta
+=======
+<<<<<<<< HEAD:Assets/Materials/Translucent.mat.meta
+guid: d6eca9fca1ddbd74d90964b2edb72ab6
+========
+guid: c5e694d9c1c18a9488ed7fe58aac1d7c
+>>>>>>>> ff9de21d656d682d71c553f420a8e27c9b9e05ec:Assets/Materials/Materials/tungtungtungtungsahur.mat.meta
+NativeFormatImporter:
+>>>>>>> ff9de21d656d682d71c553f420a8e27c9b9e05ec
   externalObjects: {}
   mainObjectFileID: 2100000
   userData: 

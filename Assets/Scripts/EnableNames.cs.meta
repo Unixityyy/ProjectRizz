@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts/EnableNames.cs.meta
 guid: 07253b77752325942b202c589bf2c480
+========
+guid: 85d032f7992d50b498cf8f6e6cf17041
+>>>>>>>> ff9de21d656d682d71c553f420a8e27c9b9e05ec:Assets/Scripts/Clicker/Saving.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

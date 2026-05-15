@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scenes/Mod Vent Overhaul/Materials.meta
 guid: df6a79336ab5aee4abf08932f27c74d3
+========
+guid: e8b97ec9990fb964da55d7b6a6c594a8
+>>>>>>>> ff9de21d656d682d71c553f420a8e27c9b9e05ec:Assets/Scenes/Mod Vent Overhaul.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
