@@ -82,3 +82,4 @@ crashlytics-build.properties
 MFSSettings.json
 /[Aa]ssets/[Mm]fuscator/
 *.keystore
+*.lscache
